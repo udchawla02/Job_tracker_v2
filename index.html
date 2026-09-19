@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  html,body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Application Tracker</title>
+<style>
+  :root{
+    --bg:#f5f7f9; --surface:#ffffff; --surface-2:#fbfcfd;
+    --ink:#191d23; --muted:#5c6572; --border:#e4e8ed;
+    --accent:#1f4e79; --accent-soft:#e8f0f8;
+    --s-toapply-fg:#475569; --s-toapply-bg:#eef1f5;
+    --s-applied-fg:#1d4ed8; --s-applied-bg:#e6edfd;
+    --s-interview-fg:#b45309; --s-interview-bg:#fbeecf;
+    --s-offer-fg:#15803d; --s-offer-bg:#e3f5e8;
+    --s-rejected-fg:#b91c1c; --s-rejected-bg:#fbe7e7;
+    --shadow:0 1px 2px rgba(20,30,45,.05),0 4px 16px rgba(20,30,45,.05);
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme:dark){
+    --bg:#12151a; --surface:#1b1f26; --surface-2:#20242c;
+    --ink:#e9edf1; --muted:#98a2b1; --border:#2b313b;
+    --accent:#6ea8dc; --accent-soft:#1e2a38;
+    --s-toapply-fg:#aeb8c6; --s-toapply-bg:#262b34;
+    --s-applied-fg:#8fb6f7; --s-applied-bg:#1c2740;
+    --s-interview-fg:#e2a765; --s-interview-bg:#3a2c17;
+    --s-offer-fg:#79c98f; --s-offer-bg:#183020;
+    --s-rejected-fg:#e88a8a; --s-rejected-bg:#3a1e1e;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.28);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#12151a; --surface:#1b1f26; --surface-2:#20242c;
+    --ink:#e9edf1; --muted:#98a2b1; --border:#2b313b;
+    --accent:#6ea8dc; --accent-soft:#1e2a38;
+    --s-toapply-fg:#aeb8c6; --s-toapply-bg:#262b34;
+    --s-applied-fg:#8fb6f7; --s-applied-bg:#1c2740;
+    --s-interview-fg:#e2a765; --s-interview-bg:#3a2c17;
+    --s-offer-fg:#79c98f; --s-offer-bg:#183020;
+    --s-rejected-fg:#e88a8a; --s-rejected-bg:#3a1e1e;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.45;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:22px 60px;}
+
+  header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:4px;}
+  header.top h1{font-size:22px;font-weight:600;letter-spacing:-.01em;margin:0;}
+  header.top .sub{color:var(--muted);font-size:13px;}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 14px;}
+  .pill{display:flex;align-items:baseline;gap:7px;background:var(--surface);
+    border:1px solid var(--border);border-radius:10px;padding:8px 12px;box-shadow:var(--shadow);}
+  .pill .n{font-size:18px;font-weight:600;}
+  .pill .l{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+  .pill[data-k="total"] .n{color:var(--accent);}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;}
+  .toolbar input[type=search],.toolbar select{
+    font:inherit;color:var(--ink);background:var(--surface);
+    border:1px solid var(--border);border-radius:9px;padding:8px 11px;}
+  .toolbar input[type=search]{flex:1;min-width:150px;}
+  .grow{flex:1;}
+  button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface);color:var(--ink);padding:8px 13px;transition:background .12s,border-color .12s;}
+  button:hover{border-color:var(--accent);}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500;}
+  button.primary:hover{filter:brightness(1.06);}
+  button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);font-weight:600;padding:11px 14px;border-bottom:1px solid var(--border);
+    background:var(--surface-2);}
+  tbody td{padding:8px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--surface-2);}
+  td.company input{font-weight:600;}
+  .cellinput{font:inherit;color:var(--ink);background:transparent;border:1px solid transparent;
+    border-radius:7px;padding:6px 8px;width:100%;min-width:0;}
+  .cellinput:hover{border-color:var(--border);}
+  .cellinput:focus{border-color:var(--accent);background:var(--surface);outline:none;}
+  .role .cellinput{color:var(--muted);}
+
+  select.status{font:inherit;font-weight:600;font-size:12.5px;border:none;border-radius:999px;
+    padding:6px 12px;cursor:pointer;-webkit-appearance:none;appearance:none;
+    background-image:none;text-align:center;}
+  select.status option{color:var(--ink);background:var(--surface);font-weight:500;}
+  .st-toapply{color:var(--s-toapply-fg);background:var(--s-toapply-bg);}
+  .st-applied{color:var(--s-applied-fg);background:var(--s-applied-bg);}
+  .st-interview{color:var(--s-interview-fg);background:var(--s-interview-bg);}
+  .st-offer{color:var(--s-offer-fg);background:var(--s-offer-bg);}
+  .st-rejected{color:var(--s-rejected-fg);background:var(--s-rejected-bg);}
+
+  td.date input{width:132px;}
+  a.link{color:var(--accent);text-decoration:none;font-size:13px;white-space:nowrap;}
+  a.link:hover{text-decoration:underline;}
+  a.link.disabled{color:var(--muted);opacity:.5;pointer-events:none;}
+  button.del{border:none;background:transparent;color:var(--muted);padding:6px 8px;
+    font-size:16px;line-height:1;border-radius:7px;}
+  button.del:hover{color:var(--s-rejected-fg);background:var(--s-rejected-bg);}
+
+  .empty{padding:40px 20px;text-align:center;color:var(--muted);}
+  .foot{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.6;}
+  .foot b{color:var(--ink);font-weight:600;}
+
+  dialog{border:1px solid var(--border);border-radius:14px;background:var(--surface);
+    color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3);padding:0;max-width:560px;width:calc(100% - 32px);}
+  dialog::backdrop{background:rgba(10,15,25,.5);}
+  .dlg{padding:18px 18px 16px;}
+  .dlg h2{margin:0 0 4px;font-size:16px;}
+  .dlg p{margin:0 0 12px;color:var(--muted);font-size:13px;}
+  .dlg textarea{width:100%;height:190px;font-family:"IBM Plex Mono",monospace;font-size:12px;
+    color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px;resize:vertical;}
+  .dlg .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+
+  @media (max-width:640px){
+    thead{display:none;}
+    tbody tr{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:12px 12px;
+      border-bottom:8px solid var(--bg);align-items:center;}
+    tbody td{border:none;padding:0;}
+    td.company{grid-column:1;} td.status{grid-column:2;grid-row:1/3;align-self:start;}
+    td.role{grid-column:1;} td.date{grid-column:1;} td.link{grid-column:1;}
+    td.del{grid-column:2;align-self:end;}
+    td.date input{width:100%;}
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<div class="wrap">
+  <header class="top">
+    <h1>Application Tracker</h1>
+    <span class="sub">Everything you've applied to, in one place. Your data stays in this browser.</span>
+  </header>
+
+  <div class="pills" id="pills"></div>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Search company or role…" aria-label="Search">
+    <select id="filter" aria-label="Filter by status">
+      <option value="">All statuses</option>
+      <option value="toapply">To Apply</option>
+      <option value="applied">Applied</option>
+      <option value="interview">Interview</option>
+      <option value="offer">Offer</option>
+      <option value="rejected">Rejected</option>
+    </select>
+    <button id="add" class="primary">+ Add</button>
+    <button id="importBtn">Import CSV</button>
+    <button id="backupBtn">Backup</button>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead><tr>
+        <th style="width:22%">Company</th>
+        <th style="width:30%">Role</th>
+        <th style="width:14%">Status</th>
+        <th style="width:15%">Date applied</th>
+        <th style="width:13%">Link</th>
+        <th style="width:6%"></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" hidden>No applications match. Clear the search, or hit <b>+ Add</b>.</div>
+  </div>
+
+  <p class="foot">
+    <b>How it saves:</b> everything is stored in this browser only — bookmark this page and it'll be here tomorrow.
+    It won't sync to another device, and clearing your browser data erases it, so hit <b>Backup</b> now and then to copy a CSV you can keep.<br>
+    <b>Import CSV</b> pastes in rows from your morning job CSV (needs <span class="mono">title</span>/<span class="mono">company</span> columns) so you can add ones you decide to apply to.
+  </p>
+</div>
+
+<dialog id="importDlg"><div class="dlg">
+  <h2>Import from CSV</h2>
+  <p>Paste your morning CSV (or any CSV with <b>title</b>, <b>company</b>, and optionally <b>location</b>/<b>job_url</b> columns). New rows come in as “To Apply”. Duplicates by link are skipped.</p>
+  <textarea id="importText" placeholder="title,company,location,job_url&#10;Junior AI Engineer,ARRK,Munich,https://…"></textarea>
+  <div class="row"><button id="importCancel">Cancel</button><button id="importGo" class="primary">Add rows</button></div>
+</div></dialog>
+
+<dialog id="backupDlg"><div class="dlg">
+  <h2>Backup (copy this)</h2>
+  <p>Select all and copy. Save it somewhere safe — paste it back via Import if you ever lose your data.</p>
+  <textarea id="backupText" readonly></textarea>
+  <div class="row"><button id="backupClose" class="primary">Done</button></div>
+</div></dialog>
+
+<script>
+const KEY="udit_app_tracker_v1";
+const STATUSES=[["toapply","To Apply"],["applied","Applied"],["interview","Interview"],["offer","Offer"],["rejected","Rejected"]];
+const LABEL=Object.fromEntries(STATUSES);
+
+// Seed = the roles you've actually been tailoring for, so the page opens in a real working state.
+const SEED=[
+ {company:"ODDO BHF",role:"Graduate Program — Data Science, AI & ML",status:"toapply",date:"",link:"https://recrutement.altays-progiciels.com/oddo/de/offres/graduate-program-data-science-ai-machine-learning-mwd-2863046.html"},
+ {company:"ARRK Engineering",role:"Junior AI Application Engineer",status:"toapply",date:"",link:""},
+ {company:"42watt",role:"Automation Engineer",status:"toapply",date:"",link:"https://42watt.jobs.personio.de/job/2770649"},
+ {company:"B. Braun",role:"Working Student — Computer Vision & Data Pipeline",status:"toapply",date:"",link:""},
+];
+
+let data=load();
+function load(){
+  try{const r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){}
+  return SEED.map(withId);
+}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){} }
+function withId(o){ return {id:(crypto.randomUUID?crypto.randomUUID():String(Math.random())),...o}; }
+
+const $=s=>document.querySelector(s);
+const rowsEl=$("#rows"), emptyEl=$("#empty");
+
+function render(){
+  const q=$("#search").value.trim().toLowerCase();
+  const f=$("#filter").value;
+  const view=data.filter(d=>{
+    if(f && d.status!==f) return false;
+    if(q && !((d.company||"").toLowerCase().includes(q)||(d.role||"").toLowerCase().includes(q))) return false;
+    return true;
+  });
+  rowsEl.innerHTML="";
+  for(const d of view) rowsEl.appendChild(rowEl(d));
+  emptyEl.hidden = view.length>0;
+  renderPills();
+}
+
+function renderPills(){
+  const counts={total:data.length}; STATUSES.forEach(([k])=>counts[k]=0);
+  data.forEach(d=>{counts[d.status]=(counts[d.status]||0)+1;});
+  const order=[["total","Total"]].concat(STATUSES);
+  $("#pills").innerHTML=order.map(([k,l])=>
+    `<div class="pill" data-k="${k}"><span class="n mono">${counts[k]||0}</span><span class="l">${k==="total"?"Total":LABEL[k]}</span></div>`).join("");
+}
+
+function rowEl(d){
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td class="company"><input class="cellinput" value="${esc(d.company)}" placeholder="Company" data-f="company"></td>
+    <td class="role"><input class="cellinput" value="${esc(d.role)}" placeholder="Role / title" data-f="role"></td>
+    <td class="status"><select class="status st-${d.status}" data-f="status">${
+        STATUSES.map(([k,l])=>`<option value="${k}" ${k===d.status?"selected":""}>${l}</option>`).join("")
+      }</select></td>
+    <td class="date"><input class="cellinput mono" type="date" value="${esc(d.date)}" data-f="date"></td>
+    <td class="link">${d.link
+        ? `<a class="link" href="${esc(d.link)}" target="_blank" rel="noopener">Open ↗</a>`
+        : `<a class="link disabled" title="No link">—</a>`}</td>
+    <td class="del"><button class="del" title="Delete" aria-label="Delete row">✕</button></td>`;
+  tr.querySelectorAll("[data-f]").forEach(el=>{
+    el.addEventListener("change",e=>update(d.id,el.dataset.f,val(el)));
+    if(el.tagName==="INPUT"&&el.type!=="date") el.addEventListener("input",e=>update(d.id,el.dataset.f,val(el),true));
+  });
+  tr.querySelector("select.status").addEventListener("change",e=>{
+    const s=e.target; s.className="status st-"+s.value;
+    // auto-fill today's date when marked Applied and no date set
+    if(s.value==="applied"){const rec=data.find(x=>x.id===d.id); if(rec&&!rec.date){rec.date=today();save();render();}}
+  });
+  tr.querySelector("button.del").addEventListener("click",()=>{
+    data=data.filter(x=>x.id!==d.id); save(); render();
+  });
+  return tr;
+}
+function val(el){return el.value;}
+function update(id,f,v,quiet){ const r=data.find(x=>x.id===id); if(!r)return; r[f]=v; save(); if(!quiet) render(); }
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function today(){const d=new Date();return d.toISOString().slice(0,10);}
+
+$("#search").addEventListener("input",render);
+$("#filter").addEventListener("change",render);
+$("#add").addEventListener("click",()=>{
+  data.unshift(withId({company:"",role:"",status:"toapply",date:"",link:""}));
+  save(); $("#search").value=""; $("#filter").value=""; render();
+  const first=rowsEl.querySelector("input[data-f=company]"); if(first) first.focus();
+});
+
+// ---- Import ----
+const importDlg=$("#importDlg");
+$("#importBtn").addEventListener("click",()=>{$("#importText").value="";importDlg.showModal();});
+$("#importCancel").addEventListener("click",()=>importDlg.close());
+$("#importGo").addEventListener("click",()=>{
+  const rows=parseCSV($("#importText").value);
+  if(!rows.length){importDlg.close();return;}
+  const head=rows[0].map(h=>h.trim().toLowerCase());
+  const ci=head.indexOf("company"), ti=head.indexOf("title"),
+        li=head.indexOf("job_url")>=0?head.indexOf("job_url"):head.indexOf("link"),
+        loc=head.indexOf("location");
+  const seen=new Set(data.map(d=>(d.link||"").trim()).filter(Boolean));
+  let added=0;
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i]; if(!r.length||r.every(c=>!c.trim()))continue;
+    const company=ci>=0?r[ci]:""; let role=ti>=0?r[ti]:"";
+    const link=li>=0?(r[li]||"").trim():"";
+    if(loc>=0&&r[loc]&&role) role=role+" — "+r[loc];
+    if(!company&&!role)continue;
+    if(link&&seen.has(link))continue;
+    if(link)seen.add(link);
+    data.push(withId({company,role,status:"toapply",date:"",link}));added++;
+  }
+  save(); importDlg.close(); render();
+});
+
+// ---- Backup ----
+const backupDlg=$("#backupDlg");
+$("#backupBtn").addEventListener("click",()=>{$("#backupText").value=toCSV(data);backupDlg.showModal();
+  const t=$("#backupText");t.focus();t.select();});
+$("#backupClose").addEventListener("click",()=>backupDlg.close());
+
+function toCSV(arr){
+  const head=["company","role","status","date","link"];
+  const q=s=>{s=String(s==null?"":s); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  return [head.join(",")].concat(arr.map(d=>[d.company,d.role,LABEL[d.status]||d.status,d.date,d.link].map(q).join(","))).join("\n");
+}
+function parseCSV(text){
+  const rows=[];let row=[],cur="",inq=false;
+  text=text.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(inq){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else inq=false; } else cur+=c; }
+    else{ if(c==='"')inq=true; else if(c===","){row.push(cur);cur="";}
+          else if(c==="\n"){row.push(cur);rows.push(row);row=[];cur="";}
+          else cur+=c; } }
+  if(cur.length||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(r=>r.length);
+}
+
+render();
+</script>
+</body>
+</html>
